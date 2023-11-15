@@ -28,11 +28,11 @@ const reset = () => {
 </script>
 
 <template>
-  <div class="absolute border rounded-lg shadow-md flex flex-col justify-center items-start bg-white overflow-hidden"
-    @mousedown="start" @mouseup="reset"
+  <div @mousedown="start" @mouseup="reset"
+    class="absolute border rounded-lg shadow-md flex flex-col justify-center items-start bg-white overflow-hidden"
     :style="{ width: `${block.width}px`, height: `${block.height}px`, left: `${block.x}px`, top: `${block.y}px` }">
     <h1 class=" text-purple-600 m-1">{{ block.id }}</h1>
-    <textarea class="flex-1  w-full p-1 resize-none text-sm text-purple-400" v-model="block.prompt"
-      @mousedown.stop></textarea>
+    <textarea v-model="block.prompt" @mousedown.stop
+      class="flex-1  w-full p-1 resize-none text-sm text-purple-400"></textarea>
   </div>
 </template>

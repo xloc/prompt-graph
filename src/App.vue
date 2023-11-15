@@ -18,10 +18,11 @@ watchEffect(() => {
 
 <template>
   <div class="relative w-screen h-screen overflow-hidden">
-    <Block v-for="(_, i) in blocks" v-model="blocks[i]" class="z-0"></Block>
-    <ConnectionCanvas :blocks="blocks" class="absolute pointer-events-none"></ConnectionCanvas>
+    <Block v-for="(_, i) in blocks" v-model="blocks[i]"
+      class="z-0" />
+    <ConnectionCanvas :blocks="blocks"
+      class="absolute pointer-events-none" />
   </div>
-  <!-- <HelloWorld msg="Vite + Vue" /> -->
 </template>
 
 <style scoped></style>

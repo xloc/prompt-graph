@@ -14,3 +14,4 @@ export interface BlockModel extends XYHW {
   id: string;
   prompt: string;
 }
+
