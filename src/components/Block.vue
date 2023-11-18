@@ -4,7 +4,10 @@ import { BlockModel } from './model';
 
 
 const props = defineProps<{ modelValue: BlockModel; }>();
-const emit = defineEmits<{ "update:modelValue": [value: BlockModel]; }>();
+const emit = defineEmits<{
+  "update:modelValue": [value: BlockModel];
+  "edit": [];
+}>();
 const block = reactive(computed({
   get: () => props.modelValue,
   set: v => emit("update:modelValue", v),
@@ -29,10 +32,17 @@ const reset = () => {
 
 <template>
   <div @mousedown="start" @mouseup="reset"
-    class="absolute border rounded-lg shadow-md flex flex-col justify-center items-start bg-white overflow-hidden"
+    class="absolute border rounded-sm shadow-md flex flex-col justify-start items-start bg-white overflow-y-auto overflow-x-hidden"
     :style="{ width: `${block.width}px`, height: `${block.height}px`, left: `${block.x}px`, top: `${block.y}px` }">
-    <h1 class=" text-purple-600 m-1">{{ block.id }}</h1>
-    <textarea v-model="block.prompt" @mousedown.stop
-      class="flex-1  w-full p-1 resize-none text-sm text-purple-400"></textarea>
+    <h1 class="w-full flex-none to-gray-950 text-md m-2 mb-0">{{ block.title }}</h1>
+    <h2 class="w-full flex-none text-gray-400 text-xs m-2 mt-0">#{{ block.id }}</h2>
+    <div class="flex-1 h-10 w-full px-2 resize-none ">
+      <textarea class="resize-none text-xs text-gray-500 w-full h-full pointer-events-none" v-model="block.prompt"
+        @mousedown.stop></textarea>
+    </div>
+    <ul class="flex justify-end w-full p-2 px-2 text-sm">
+      <button class="text-violet-500 p-1 px-2 rounded-sm hover:bg-gray-200"
+        @click="emit('edit')">EDIT</button>
+    </ul>
   </div>
 </template>

@@ -12,6 +12,8 @@ export interface BlockModel extends XYHW {
   height: number;
 
   id: string;
+  title: string;
   prompt: string;
+
 }
 
