@@ -16,17 +16,18 @@
           <textarea class="field flex-1 resize-none " v-model="block.prompt"></textarea>
         </div>
       </div>
-      <div class="absolute bottom-0 right-0 flex justify-end w-full p-2 px-2 text-sm">
-        <button class="text-violet-500 p-1 px-2 rounded-sm hover:bg-gray-200"
-          @click="emit('close')">CLOSE</button>
-      </div>
+      <button @click="emit('close')"
+        class="absolute top-5 right-5 flex text-sm text-violet-500 p-1 px-2 hover:bg-gray-200">
+        ESC
+      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue';
+import { computed } from 'vue';
 import { BlockModel } from './model';
+import { useKeyPress } from '../composables/keypress';
 
 const emit = defineEmits<{
   "close": [];
@@ -40,16 +41,7 @@ const block = computed({
   set: v => emit("update:modelValue", v),
 });
 
-// close when escape is pressed
-const onEscapePressed = (e: KeyboardEvent) => {
-  if (e.key === 'Escape') emit('close');
-}
-onMounted(() => {
-  addEventListener('keydown', onEscapePressed);
-});
-onUnmounted(() => {
-  removeEventListener('keydown', onEscapePressed);
-});
+useKeyPress('Escape', () => emit('close'));
 </script>
 
 <style scoped>

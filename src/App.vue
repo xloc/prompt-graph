@@ -4,6 +4,7 @@ import BlockEdit from './components/BlockEdit.vue';
 import Block from "./components/Block.vue";
 import { BlockModel } from './components/model';
 import { ref, watchEffect } from 'vue';
+import SettingsPage from './components/SettingsPage.vue';
 
 
 const blocks = ref<BlockModel[]>([
@@ -16,16 +17,25 @@ watchEffect(() => {
 })
 
 const selection = ref<BlockModel | null>(null);
+const showSettings = ref(false);
 
 </script>
 
 <template>
   <div class="relative w-screen h-screen overflow-hidden">
-    <Block v-for="(_, i) in blocks" v-model="blocks[i]" @edit="selection = blocks[i]" @click.meta="selection = blocks[i]"
+    <Block v-for="(_, i) in blocks"
+      v-model="blocks[i]" @edit="selection = blocks[i]" @click.meta="selection = blocks[i]"
       class="z-0" />
-    <ConnectionCanvas :blocks="blocks"
-      class="absolute pointer-events-none" />
+    <ConnectionCanvas :blocks="blocks" class="absolute pointer-events-none" />
+
+    <button @click="showSettings = true"
+      class="absolute bottom-5 right-5 p-3 rounded-full border shadow-md w-12 h-12 overflow-hidden hover:bg-gray-200">
+      <img src="./assets/cog-8-tooth.svg" class="w-full h-full" />
+    </button>
+
+
     <BlockEdit v-if="selection" v-model="selection" @close="selection = null"></BlockEdit>
+    <SettingsPage v-if="showSettings" @close="showSettings = false" />
   </div>
 </template>
 
