@@ -9,9 +9,9 @@ import FilePage from './components/FilePage.vue';
 
 
 const blocks = ref<BlockModel[]>([
-  { x: 10, y: 10, width: 200, height: 150, id: 'a', prompt: 'standalone', title: 'Title goes here' },
-  { x: 10, y: 200, width: 200, height: 150, id: 'b', prompt: 'depending on {a}', title: 'Title goes here' },
-  { x: 10, y: 400, width: 200, height: 150, id: 'c', prompt: 'depending on {a} and {b}', title: 'Title goes here' },
+  { xyhw: { x: 10, y: 10, width: 200, height: 150 }, id: 'a', prompt: 'standalone', title: 'Title goes here' },
+  { xyhw: { x: 10, y: 200, width: 200, height: 150 }, id: 'b', prompt: 'depending on {a}', title: 'Title goes here' },
+  { xyhw: { x: 10, y: 400, width: 200, height: 150 }, id: 'c', prompt: 'depending on {a} and {b}', title: 'Title goes here' },
 ]);
 
 watchEffect(() => {

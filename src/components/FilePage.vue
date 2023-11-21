@@ -20,11 +20,11 @@
 import { computed } from 'vue';
 import Page from './Page.vue'
 import { useKeyPress } from '../composables/keypress';
-import { BlockModel } from './model';
+import { BlockModel, dump } from './model';
 
 const props = defineProps<{ blocks: BlockModel[] }>();
 const code = computed(() => {
-  return JSON.stringify(props.blocks, null, 2);
+  return dump(props.blocks);
 });
 
 const emit = defineEmits<{ "close": [] }>();

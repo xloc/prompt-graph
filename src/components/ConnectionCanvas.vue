@@ -19,16 +19,16 @@ const getParentIDsOf = (block: BlockModel) => {
 };
 
 const drawAllConnectionTo = (to: BlockModel, ctx: CanvasRenderingContext2D) => {
-  const toX = to.x;
-  const toY = to.y + to.height / 2;
+  const toX = to.xyhw.x;
+  const toY = to.xyhw.y + to.xyhw.height / 2;
   const parents = getParentIDsOf(to)
     .map(id => props.blocks.find(b => b.id === id))
     .filter(b => b !== undefined) as BlockModel[];
 
   for (const block of parents) {
     if (block.id === to.id) continue;
-    const fromX = block.x + block.width;
-    const fromY = block.y + block.height / 2;
+    const fromX = block.xyhw.x + block.xyhw.width;
+    const fromY = block.xyhw.y + block.xyhw.height / 2;
 
     // draw beizer curve from (fromX, fromY) to (toX, toY)
     ctx.beginPath();

@@ -1,7 +1,7 @@
 <template>
   <div @mousedown="start" @mouseup="reset"
     class="absolute border rounded-sm shadow-md flex flex-col justify-start items-start bg-white overflow-y-auto overflow-x-hidden"
-    :style="{ width: `${block.width}px`, height: `${block.height}px`, left: `${block.x}px`, top: `${block.y}px` }">
+    :style="{ width: `${block.xyhw.width}px`, height: `${block.xyhw.height}px`, left: `${block.xyhw.x}px`, top: `${block.xyhw.y}px` }">
     <h1 class="w-full flex-none to-gray-950 text-md m-2 mb-0">{{ block.title }}</h1>
     <h2 class="w-full flex-none text-gray-400 text-xs m-2 mt-0">{{ '{' + block.id + '}' }}</h2>
     <div class="flex-1 h-10 w-full px-2 resize-none ">
@@ -35,14 +35,14 @@ const block = reactive(computed({
 const offset = { x: 0, y: 0 };
 
 const updateLocation = function (e: MouseEvent) {
-  block.value.x = e.clientX - offset.x;
-  block.value.y = e.clientY - offset.y;
+  block.value.xyhw.x = e.clientX - offset.x;
+  block.value.xyhw.y = e.clientY - offset.y;
 };
 
 const start = function (e: MouseEvent) {
   addEventListener('mousemove', updateLocation);
-  offset.x = e.clientX - block.value.x;
-  offset.y = e.clientY - block.value.y;
+  offset.x = e.clientX - block.value.xyhw.x;
+  offset.y = e.clientY - block.value.xyhw.y;
 };
 const reset = () => {
   removeEventListener('mousemove', updateLocation);
