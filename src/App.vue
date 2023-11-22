@@ -38,7 +38,7 @@ const showFiles = ref(false);
 
     <BlockEdit v-if="selection" v-model="selection" @close="selection = null"></BlockEdit>
     <SettingsPage v-if="showSettings" @close="showSettings = false" />
-    <FilePage v-if="showFiles" @close="showFiles = false" :blocks="blocks" />
+    <FilePage v-if="showFiles" @close="showFiles = false" v-model="blocks" />
   </div>
 </template>
 
