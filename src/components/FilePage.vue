@@ -6,8 +6,10 @@
         file list
       </div>
       <div class="h-full flex-[7] border position relative">
-        <pre class="overflow-y-auto p-1 text-xs inset-0">{{ code }}</pre>
-        <ul class="flex gap-1 justify-end w-full absolute bottom-0 right-0">
+        <div class="absolute inset-0 overflow-y-auto">
+          <pre class="p-1 text-xs inset-0">{{ code }}</pre>
+        </div>
+        <ul class="flex gap-1 justify-end w-full absolute bottom-0 right-5">
           <button class="p-1 border" @click="save">save</button>
           <button class="p-1 border" @click="copy">copy</button>
           <button class="p-1 border" @click="showUpload = true">upload</button>
