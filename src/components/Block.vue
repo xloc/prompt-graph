@@ -1,6 +1,7 @@
 <template>
   <div @mousedown="start" @mouseup="reset"
-    class="absolute border rounded-sm shadow-md flex flex-col justify-start items-start bg-white overflow-y-auto overflow-x-hidden"
+    class="absolute border rounded-sm shadow-md flex flex-col justify-start items-start bg-white overflow-y-auto overflow-x-hidden |
+    hover:shadow-lg cursor-move"
     :style="{ width: `${block.xyhw.width}px`, height: `${block.xyhw.height}px`, left: `${block.xyhw.x}px`, top: `${block.xyhw.y}px` }">
     <h1 class="w-full flex-none to-gray-950 text-md m-2 mb-0">{{ block.title }}</h1>
     <h2 class="w-full flex-none text-gray-400 text-xs m-2 mt-0">{{ '{' + block.id + '}' }}</h2>
