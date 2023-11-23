@@ -7,9 +7,11 @@ const canvas = ref<HTMLCanvasElement | null>(null);
 const h = ref(0);
 const w = ref(0);
 
-const updateSize = () => {
+const updateSize = async () => {
   h.value = window.innerHeight;
   w.value = window.innerWidth;
+  await nextTick();
+  drawConnections();
 };
 
 const getParentIDsOf = (block: BlockModel) => {
@@ -62,11 +64,8 @@ const drawConnections = () => {
 };
 
 onMounted(async () => {
-  updateSize();
   window.addEventListener('resize', updateSize);
-
-  await nextTick();
-  drawConnections();
+  updateSize();
 });
 
 onUnmounted(() => {
