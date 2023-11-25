@@ -16,13 +16,11 @@ export interface BlockModel {
 }
 
 export const dump = (block: BlockModel[]) => {
-  console.log(block);
   return YAML.stringify(block, { indent: 2 });
 };
 
 export const load = (yaml: string) => {
   const block = YAML.parse(yaml) as BlockModel[];
-  console.log(block);
   return block;
 };
 

@@ -1,9 +1,11 @@
 <template>
-  <Page @close="emit('close')">
-    <div class="flex items-stretch gap-x-2 flex-shrink h-full">
-      <div class="flex-[3] border
-      flex justify-center items-center">
-        file list
+  <Page @close="close">
+    <div class="flex items-stretch gap-x-2 flex-shrink h-full" @dragover="dragover">
+      <div class="flex-[3] border | flex flex-col justify-start items-stretch | relative">
+        <FileListItem class="border-b border-b-gray-200 p-1 bg-violet-50" :file="currentFile" />
+        <FileListItem v-for="file in otherFiles" :key="file.fileName" :file="file"
+          class="border-b border-b-gray-200 p-1 hover:bg-gray-50"
+          @click="swapCurrentFile(file)" />
       </div>
       <div class="h-full flex-[7] border position relative">
         <div class="absolute inset-0 overflow-y-auto">
@@ -27,32 +29,32 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, nextTick, onMounted, ref } from 'vue';
 import Page from './Page.vue'
 import { useKeyPress } from '../composables/keypress';
-import { BlockModel, dump, load } from './model';
+import { GraphFile, db } from './file-db';
+import FileListItem from './FileList/FileListItem.vue';
 
 const props = defineProps<{
-  modelValue: BlockModel[]
+  modelValue: GraphFile,
 }>();
-
 const emit = defineEmits<{
   "close": [];
-  "update:modelValue": [value: BlockModel[]];
+  "update:modelValue": [value: GraphFile];
 }>();
 
-useKeyPress('Escape', () => {
+const close = () => {
   if (showUpload.value) {
     showUpload.value = false;
     uploadError.value = '';
   } else {
     emit('close');
   }
-});
+}
+useKeyPress('Escape', close);
 
 
-
-const code = computed(() => dump(props.modelValue));
+const code = computed(() => props.modelValue.content);
 
 const save = () => {
   const blob = new Blob([code.value], { type: 'text/plain' });
@@ -78,10 +80,16 @@ const dropThrows = async (e: DragEvent) => {
   const file = files[0];
   if (!file.type.includes('yaml')) throw new Error("should drop only yaml file");
 
-  const text = await file.text();
-  const blocks = load(text);
-  emit('update:modelValue', blocks);
-  showUpload.value = false;
+  emit('update:modelValue', {
+    ...props.modelValue,
+    content: await file.text(),
+    fileName: file.name.replace(/.yaml$/, '')
+  });
+
+  // display updates
+  showUpload.value = false; // dismiss upload prompt
+  await nextTick();
+  updateFile(); // update file list
 }
 const drop = async (e: DragEvent) => {
   try {
@@ -90,4 +98,21 @@ const drop = async (e: DragEvent) => {
     uploadError.value = (e as Error).message;
   }
 }
+const dragover = () => { showUpload.value = true; }
+
+
+const otherFiles = ref<GraphFile[]>([]);
+const currentFile = computed(() => props.modelValue);
+const updateFile = async () => {
+  otherFiles.value = await db.files.where('fileName').notEqual(props.modelValue.fileName).toArray();
+}
+const swapCurrentFile = async (file: GraphFile) => {
+  emit('update:modelValue', file);
+  await nextTick();
+  updateFile();
+}
+onMounted(async () => {
+  updateFile();
+});
+
 </script>

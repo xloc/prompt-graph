@@ -2,20 +2,31 @@
 import ConnectionCanvas from './components/ConnectionCanvas.vue';
 import BlockEdit from './components/BlockEdit.vue';
 import Block from "./components/Block.vue";
-import { BlockModel } from './components/model';
-import { ref, watchEffect } from 'vue';
+import { BlockModel, dump, load } from './components/model';
+import { onMounted, ref, watchEffect } from 'vue';
 import SettingsPage from './components/SettingsPage.vue';
 import FilePage from './components/FilePage.vue';
+import { EDITING_FILE_PRIMARY_KEY, GraphFile, db, getEditingFile } from './components/file-db';
+import _ from 'lodash';
 
 
-const blocks = ref<BlockModel[]>([
-  { xyhw: { x: 10, y: 10, width: 200, height: 150 }, id: 'a', prompt: 'standalone', title: 'Title goes here' },
-  { xyhw: { x: 10, y: 200, width: 200, height: 150 }, id: 'b', prompt: 'depending on {a}', title: 'Title goes here' },
-  { xyhw: { x: 10, y: 400, width: 200, height: 150 }, id: 'c', prompt: 'depending on {a} and {b}', title: 'Title goes here' },
-]);
+const editingFile = ref<GraphFile>();
+onMounted(async () => {
+  editingFile.value = await getEditingFile();
+});
 
+const blocks = ref<BlockModel[]>([]);
 watchEffect(() => {
-})
+  if (!editingFile.value) return;
+  blocks.value = load(editingFile.value.content);
+});
+watchEffect(async () => {
+  if (!editingFile.value) return;
+
+  editingFile.value.content = dump(blocks.value);
+  await db.files.put({ ...editingFile.value }, editingFile.value.fileName);
+  localStorage.setItem(EDITING_FILE_PRIMARY_KEY, editingFile.value.fileName);
+});
 
 const selection = ref<BlockModel | null>(null);
 const showSettings = ref(false);
@@ -38,8 +49,9 @@ const showFiles = ref(false);
 
     <BlockEdit v-if="selection" v-model="selection" @close="selection = null"></BlockEdit>
     <SettingsPage v-if="showSettings" @close="showSettings = false" />
-    <FilePage v-if="showFiles" @close="showFiles = false" v-model="blocks" />
+    <FilePage v-if="showFiles && editingFile" @close="showFiles = false" v-model="editingFile" />
   </div>
 </template>
 
 <style scoped></style>
+./components/file-db
