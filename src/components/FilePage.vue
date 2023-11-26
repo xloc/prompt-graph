@@ -11,10 +11,16 @@
         <div class="absolute inset-0 overflow-y-auto">
           <pre class="p-1 text-xs inset-0">{{ code }}</pre>
         </div>
-        <ul class="flex gap-1 justify-end w-full absolute bottom-0 right-5">
-          <button class="p-1 border" @click="save">save</button>
-          <button class="p-1 border" @click="copy">copy</button>
-          <button class="p-1 border" @click="showUpload = true">upload</button>
+        <ul class="flex gap-2 justify-end w-full absolute bottom-4 right-4">
+          <button class="bg-gray-100 hover:bg-gray-300 p-2 rounded-md" @click="save">
+            <ArrowDownTrayIcon class="w-4 h-4" />
+          </button>
+          <button class="bg-gray-100 hover:bg-gray-300 p-2 rounded-md" @click="copy">
+            <DocumentDuplicateIcon class="w-4 h-4" />
+          </button>
+          <button class="bg-gray-100 hover:bg-gray-300 p-2 rounded-md" @click="showUpload = true">
+            <ArrowUpTrayIcon class="w-4 h-4" />
+          </button>
         </ul>
       </div>
     </div>
@@ -34,6 +40,9 @@ import Page from './Page.vue'
 import { useKeyPress } from '../composables/keypress';
 import { GraphFile, db } from './file-db';
 import FileListItem from './FileList/FileListItem.vue';
+import DocumentDuplicateIcon from '@heroicons/vue/24/outline/DocumentDuplicateIcon';
+import ArrowUpTrayIcon from '@heroicons/vue/24/outline/ArrowUpTrayIcon';
+import ArrowDownTrayIcon from '@heroicons/vue/24/outline/ArrowDownTrayIcon';
 
 const props = defineProps<{
   modelValue: GraphFile,
@@ -61,7 +70,7 @@ const save = () => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${new Date().toLocaleString().replace('T', ' ').substring(0, 20)}.yaml`;
+  a.download = `${props.modelValue.fileName}.yaml`;
   a.click();
   URL.revokeObjectURL(url);
 };
