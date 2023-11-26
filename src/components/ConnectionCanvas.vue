@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nextTick, onMounted, onUnmounted, ref, watchEffect } from 'vue';
-import { BlockModel } from './model';
+import { BlockModel } from '../models/model';
 
 const props = defineProps<{ blocks: BlockModel[]; }>();
 const canvas = ref<HTMLCanvasElement | null>(null);

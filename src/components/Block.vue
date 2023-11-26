@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 import { computed, reactive } from 'vue';
-import { BlockModel } from './model';
+import { BlockModel } from '../models/model';
 
 
 const props = defineProps<{ modelValue: BlockModel; }>();

@@ -35,8 +35,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { BlockModel } from './model';
 import { useKeyPress } from '../composables/keypress';
+import { BlockModel } from '../models/model';
 
 const emit = defineEmits<{
   "close": [];

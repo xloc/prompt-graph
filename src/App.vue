@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import ConnectionCanvas from './components/ConnectionCanvas.vue';
-import BlockEdit from './components/BlockEdit.vue';
+import BlockEdit from './components/BlockEditPage.vue';
 import Block from "./components/Block.vue";
-import { BlockModel, dump, load } from './components/model';
+import { BlockModel, dump, load } from './models/model';
 import { onMounted, ref, watchEffect } from 'vue';
 import SettingsPage from './components/SettingsPage.vue';
-import FilePage from './components/FilePage.vue';
-import { EDITING_FILE_PRIMARY_KEY, GraphFile, db, getEditingFile } from './components/file-db';
+import FilePage from './components/FilePage/FilePage.vue';
+import { EDITING_FILE_PRIMARY_KEY, GraphFile, db, getEditingFile } from './models/file-db';
 import _ from 'lodash';
 
 
@@ -54,4 +54,4 @@ const showFiles = ref(false);
 </template>
 
 <style scoped></style>
-./components/file-db
+./components/file-db./models/model./models/file-db

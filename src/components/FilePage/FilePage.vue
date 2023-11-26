@@ -36,10 +36,10 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from 'vue';
-import Page from './Page.vue'
-import { useKeyPress } from '../composables/keypress';
-import { GraphFile, db } from './file-db';
-import FileListItem from './FileList/FileListItem.vue';
+import Page from '../Page.vue'
+import { useKeyPress } from '../../composables/keypress';
+import { GraphFile, db } from '../../models/file-db';
+import FileListItem from './FileListItem.vue';
 import DocumentDuplicateIcon from '@heroicons/vue/24/outline/DocumentDuplicateIcon';
 import ArrowUpTrayIcon from '@heroicons/vue/24/outline/ArrowUpTrayIcon';
 import ArrowDownTrayIcon from '@heroicons/vue/24/outline/ArrowDownTrayIcon';

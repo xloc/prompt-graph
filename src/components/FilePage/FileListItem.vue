@@ -15,9 +15,9 @@
 </template>
 
 <script setup lang="ts">
-import { GraphFile } from "../file-db";
 import TrashIcon from '@heroicons/vue/24/outline/TrashIcon';
 import PencilSquareIcon from '@heroicons/vue/24/outline/PencilSquareIcon';
+import { GraphFile } from '../../models/file-db';
 
 
 defineProps<{
