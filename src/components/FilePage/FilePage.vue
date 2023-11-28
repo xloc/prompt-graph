@@ -2,11 +2,10 @@
   <Page @close="close">
     <div class="flex items-stretch gap-x-2 flex-shrink h-full" @dragover="dragover">
       <div class="flex-[3] border | flex flex-col justify-start items-stretch | relative">
-        <FileListItem class="border-b border-b-gray-200 p-1 bg-violet-50" :file="currentFile"
-          @rename="(name) => rename(currentFile, name)" />
-        <FileListItem v-for="file in otherFiles" :key="file.fileName" :file="file"
+        <FileListItem v-for="file in files" :key="file.id" :file="file"
+          :class="{ 'bg-violet-50 hover:bg-violet-100': file.id === currentFile.id }"
           class="border-b border-b-gray-200 p-1 hover:bg-gray-50"
-          @click="swapCurrentFile(file)" @rename="(name) => rename(file, name)" />
+          @click="switchCurrentFile(file)" @rename="(name) => rename(file, name)"></FileListItem>
       </div>
       <div class="h-full flex-[7] border position relative">
         <div class="absolute inset-0 overflow-y-auto">
@@ -36,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import Page from '../Page.vue'
 import { useKeyPress } from '../../composables/keypress';
 import { GraphFile, db } from '../../models/file-db';
@@ -44,6 +43,7 @@ import FileListItem from './FileListItem.vue';
 import DocumentDuplicateIcon from '@heroicons/vue/24/outline/DocumentDuplicateIcon';
 import ArrowUpTrayIcon from '@heroicons/vue/24/outline/ArrowUpTrayIcon';
 import ArrowDownTrayIcon from '@heroicons/vue/24/outline/ArrowDownTrayIcon';
+import { liveQuery, Subscription } from 'dexie';
 
 const props = defineProps<{
   modelValue: GraphFile,
@@ -52,6 +52,11 @@ const emit = defineEmits<{
   "close": [];
   "update:modelValue": [value: GraphFile];
 }>();
+
+const currentFile = computed({
+  get: () => props.modelValue,
+  set: v => emit('update:modelValue', v),
+});
 
 const close = () => {
   if (showUpload.value) {
@@ -64,14 +69,14 @@ const close = () => {
 useKeyPress('Escape', close);
 
 
-const code = computed(() => props.modelValue.content);
+const code = computed(() => currentFile.value.content);
 
 const save = () => {
   const blob = new Blob([code.value], { type: 'text/plain' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${props.modelValue.fileName}.yaml`;
+  a.download = `${currentFile.value.fileName}.yaml`;
   a.click();
   URL.revokeObjectURL(url);
 };
@@ -90,17 +95,15 @@ const dropThrows = async (e: DragEvent) => {
   const file = files[0];
   if (!file.type.includes('yaml')) throw new Error("should drop only yaml file");
 
-  emit('update:modelValue', {
+  currentFile.value = {
     createAt: new Date(),
     updateAt: new Date(),
     content: await file.text(),
     fileName: file.name.replace(/.yaml$/, '')
-  });
+  };
 
   // display updates
   showUpload.value = false; // dismiss upload prompt
-  await nextTick();
-  updateFile(); // update file list
 }
 const drop = async (e: DragEvent) => {
   try {
@@ -111,20 +114,21 @@ const drop = async (e: DragEvent) => {
 }
 const dragover = () => { showUpload.value = true; }
 
-
-const otherFiles = ref<GraphFile[]>([]);
-const currentFile = computed(() => props.modelValue);
-const updateFile = async () => {
-  otherFiles.value = await db.files.where('fileName').notEqual(props.modelValue.fileName).toArray();
-}
-const swapCurrentFile = async (file: GraphFile) => {
-  emit('update:modelValue', file);
-  await nextTick();
-  updateFile();
-}
-onMounted(async () => {
-  updateFile();
+const files = ref<GraphFile[]>([]);
+let subscription: Subscription | undefined = undefined;
+onMounted(() => {
+  subscription = liveQuery(() => db.files.toArray())
+    .subscribe((newFiles) => {
+      files.value = newFiles;
+    });
 });
+onUnmounted(() => {
+  subscription?.unsubscribe();
+});
+
+const switchCurrentFile = async (file: GraphFile) => {
+  currentFile.value = file;
+}
 
 const rename = async (file: GraphFile, newName: string) => {
   console.log({ id: file.id, fileName: newName });
@@ -135,7 +139,7 @@ const rename = async (file: GraphFile, newName: string) => {
   });
   file.fileName = newName;
   if (file.id === currentFile.value.id) {
-    emit('update:modelValue', { ...file, fileName: newName });
+    currentFile.value = { ...file, fileName: newName };
   }
 }
 

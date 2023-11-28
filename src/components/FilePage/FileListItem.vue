@@ -18,10 +18,11 @@
     </template>
     <template v-else>
       <input type="text" v-model="editingFileName" ref="inputRef"
+        class="w-full border rounded-sm p-2 focus:outline focus:outline-2 focus:outline-violet-400"
         @keydown.enter="emit('rename', editingFileName); isEditingName = false"
-        @focusout="isEditingName = false"
-        @click.stop
-        class="w-full border rounded-sm p-2 focus:outline focus:outline-2 focus:outline-violet-400" />
+        @keydown.escape="inputRef?.blur()"
+        @focusout="editingFileName = props.file.fileName; isEditingName = false"
+        @click.stop />
     </template>
   </div>
 </template>
