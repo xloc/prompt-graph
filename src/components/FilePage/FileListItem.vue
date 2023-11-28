@@ -1,7 +1,7 @@
 <template>
   <div class="relative group">
     <template v-if="!isEditingName">
-      <div class="text">{{ file.fileName }}</div>
+      <div class="">{{ file.fileName }}</div>
       <div class="text-sm text-gray-500">{{ file.createAt.toLocaleString() }}</div>
       <div class="absolute inset-0 flex justify-end items-center p-3 gap-2">
         <button @click.stop="isEditingName = true; inputRef?.focus()"
@@ -9,7 +9,7 @@
           bg-gray-300 bg-opacity-50 hover:bg-gray-300 p-2 rounded-md">
           <PencilSquareIcon class="w-4 h-4" />
         </button>
-        <button @click.stop
+        <button @click.stop="emit('delete')"
           class="invisible group-hover:visible backdrop-blur-sm 
           bg-gray-300 bg-opacity-50 hover:bg-gray-300 p-2 rounded-md">
           <TrashIcon class="w-4 h-4" />

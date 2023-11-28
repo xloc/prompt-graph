@@ -1,13 +1,14 @@
 <template>
   <Page @close="close">
     <div class="flex items-stretch gap-x-2 flex-shrink h-full" @dragover="dragover">
-      <div class="flex-[3] border | flex flex-col justify-start items-stretch | relative">
+      <div class="flex-[3_3_0] border | flex flex-col justify-start items-stretch | relative">
         <FileListItem v-for="file in files" :key="file.id" :file="file"
           :class="{ 'bg-violet-50 hover:bg-violet-100': file.id === currentFile.id }"
           class="border-b border-b-gray-200 p-1 hover:bg-gray-50"
-          @click="switchCurrentFile(file)" @rename="(name) => rename(file, name)"></FileListItem>
+          @click="switchCurrentFile(file)"
+          @rename="(name) => rename(file, name)" @delete="remove(file)"></FileListItem>
       </div>
-      <div class="h-full flex-[7] border position relative">
+      <div class="h-full flex-[7_7_0] border position relative">
         <div class="absolute inset-0 overflow-y-auto">
           <pre class="p-1 text-xs inset-0">{{ code }}</pre>
         </div>
@@ -38,7 +39,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import Page from '../Page.vue'
 import { useKeyPress } from '../../composables/keypress';
-import { GraphFile, db } from '../../models/file-db';
+import { GraphFile, db, getEditingFile } from '../../models/file-db';
 import FileListItem from './FileListItem.vue';
 import DocumentDuplicateIcon from '@heroicons/vue/24/outline/DocumentDuplicateIcon';
 import ArrowUpTrayIcon from '@heroicons/vue/24/outline/ArrowUpTrayIcon';
@@ -142,5 +143,15 @@ const rename = async (file: GraphFile, newName: string) => {
     currentFile.value = { ...file, fileName: newName };
   }
 }
+
+const remove = async (file: GraphFile) => {
+  if (file.id === undefined) throw new Error("file.id is undefined");
+  await db.files.delete(file.id)
+  if (file.id === currentFile.value.id) {
+    let file = await db.files.toCollection().first();
+    if (!file) file = await getEditingFile();
+    currentFile.value = file;
+  }
+};
 
 </script>
