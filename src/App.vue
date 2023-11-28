@@ -21,16 +21,25 @@ watchEffect(() => {
   blocks.value = load(editingFile.value.content);
 });
 watchEffect(async () => {
-  if (!editingFile.value) return;
+  if (!editingFile.value || editingFile.value.id === undefined) return;
 
   editingFile.value.content = dump(blocks.value);
-  await db.files.put({ ...editingFile.value }, editingFile.value.fileName);
-  localStorage.setItem(EDITING_FILE_PRIMARY_KEY, editingFile.value.fileName);
+  await db.files.put({ ...editingFile.value }, editingFile.value.id);
+  localStorage.setItem(EDITING_FILE_PRIMARY_KEY, editingFile.value.id.toString());
+});
+watchEffect(async () => {
+  if (!editingFile.value) return;
+  if (editingFile.value.id === undefined) {
+    editingFile.value.id = await db.files.add({ ...editingFile.value }) as number;
+  }
 });
 
 const selection = ref<BlockModel | null>(null);
 const showSettings = ref(false);
-const showFiles = ref(false);
+const showFiles = ref(localStorage.getItem("showFiles") === "true");
+watchEffect(() => {
+  localStorage.setItem("showFiles", showFiles.value.toString());
+});
 
 </script>
 
@@ -52,6 +61,3 @@ const showFiles = ref(false);
     <FilePage v-if="showFiles && editingFile" @close="showFiles = false" v-model="editingFile" />
   </div>
 </template>
-
-<style scoped></style>
-./components/file-db./models/model./models/file-db

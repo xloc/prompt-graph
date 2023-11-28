@@ -2,10 +2,11 @@
   <Page @close="close">
     <div class="flex items-stretch gap-x-2 flex-shrink h-full" @dragover="dragover">
       <div class="flex-[3] border | flex flex-col justify-start items-stretch | relative">
-        <FileListItem class="border-b border-b-gray-200 p-1 bg-violet-50" :file="currentFile" />
+        <FileListItem class="border-b border-b-gray-200 p-1 bg-violet-50" :file="currentFile"
+          @rename="(name) => rename(currentFile, name)" />
         <FileListItem v-for="file in otherFiles" :key="file.fileName" :file="file"
           class="border-b border-b-gray-200 p-1 hover:bg-gray-50"
-          @click="swapCurrentFile(file)" />
+          @click="swapCurrentFile(file)" @rename="(name) => rename(file, name)" />
       </div>
       <div class="h-full flex-[7] border position relative">
         <div class="absolute inset-0 overflow-y-auto">
@@ -90,7 +91,8 @@ const dropThrows = async (e: DragEvent) => {
   if (!file.type.includes('yaml')) throw new Error("should drop only yaml file");
 
   emit('update:modelValue', {
-    ...props.modelValue,
+    createAt: new Date(),
+    updateAt: new Date(),
     content: await file.text(),
     fileName: file.name.replace(/.yaml$/, '')
   });
@@ -123,5 +125,18 @@ const swapCurrentFile = async (file: GraphFile) => {
 onMounted(async () => {
   updateFile();
 });
+
+const rename = async (file: GraphFile, newName: string) => {
+  console.log({ id: file.id, fileName: newName });
+
+  if (file.id === undefined) throw new Error("file.id is undefined");
+  db.files.update(file.id, { fileName: newName }).catch(e => {
+    console.error(e);
+  });
+  file.fileName = newName;
+  if (file.id === currentFile.value.id) {
+    emit('update:modelValue', { ...file, fileName: newName });
+  }
+}
 
 </script>

@@ -1,9 +1,11 @@
 import Dexie, { Table } from 'dexie';
 
 export interface GraphFile {
+  id?: number;
+
   fileName: string;
-  creatdAt: Date;
-  updatedAt: Date;
+  createAt: Date;
+  updateAt: Date;
 
   content: string;
 }
@@ -14,7 +16,7 @@ export class GraphFileStorageDexie extends Dexie {
   constructor() {
     super('file-storage');
     this.version(1).stores({
-      files: '&fileName, creatdAt, updatedAt'
+      files: '++id, &fileName, creatdAt, updatedAt'
     });
   }
 }
@@ -38,26 +40,35 @@ const getUniqueFileName = (): Promise<string> => {
   return Promise.resolve(new Date(Date.now()).toLocaleString());
 }
 
-export const EDITING_FILE_PRIMARY_KEY = 'editing-file-name';
+export const EDITING_FILE_PRIMARY_KEY = 'editing-file-id';
 export const getEditingFile = async (): Promise<GraphFile> => {
   // if editing file is in local storage and valid, return it
-  const key = localStorage.getItem(EDITING_FILE_PRIMARY_KEY);
-  if (key !== null) {
-    const file = await db.files.get(key);
+  const getExistingFile = async () => {
+    const key = localStorage.getItem(EDITING_FILE_PRIMARY_KEY);
+    if (key === null) return;
+    const intKey = parseInt(key);
+    if (isNaN(intKey)) return;
+    const file = await db.files.get(intKey);
     if (file !== undefined) return file;
   }
+  const existingFile = await getExistingFile();
+  console.log(existingFile);
+
+  if (existingFile) return existingFile;
 
   // otherwise, create a new file in IndexedDB
-  const newKey = await db.files.add({
-    fileName: await getUniqueFileName(),
-    creatdAt: new Date(),
-    updatedAt: new Date(),
+  const newFileName = await getUniqueFileName();
+  const newIntID = await db.files.add({
+    fileName: newFileName,
+    createAt: new Date(),
+    updateAt: new Date(),
     content: '[]',
   }) as string;
   // update local storage
-  localStorage.setItem(EDITING_FILE_PRIMARY_KEY, newKey);
+  localStorage.setItem(EDITING_FILE_PRIMARY_KEY, newIntID.toString());
 
-  return await db.files.get(newKey) as GraphFile;
+  const file = await db.files.get(newIntID) as GraphFile;
+  return file
 }
 
 (window as unknown as any).clearStorage = () => {

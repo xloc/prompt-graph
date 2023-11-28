@@ -1,16 +1,28 @@
 <template>
   <div class="relative group">
-    <div class="text">{{ file.fileName }}</div>
-    <div class="text-sm text-gray-500">{{ file.creatdAt.toLocaleString() }}</div>
-    <div class="absolute inset-0 flex justify-end items-center p-3 gap-2">
-      <button
-        class="invisible group-hover:visible backdrop-blur-sm bg-gray-300 bg-opacity-50 hover:bg-gray-300 p-2 rounded-md">
-        <PencilSquareIcon class="w-4 h-4" />
-      </button>
-      <button class="invisible group-hover:visible bg-gray-200 hover:bg-gray-300 p-2 rounded-md">
-        <TrashIcon class="w-4 h-4" />
-      </button>
-    </div>
+    <template v-if="!isEditingName">
+      <div class="text">{{ file.fileName }}</div>
+      <div class="text-sm text-gray-500">{{ file.createAt.toLocaleString() }}</div>
+      <div class="absolute inset-0 flex justify-end items-center p-3 gap-2">
+        <button @click.stop="isEditingName = true; inputRef?.focus()"
+          class="invisible group-hover:visible backdrop-blur-sm 
+          bg-gray-300 bg-opacity-50 hover:bg-gray-300 p-2 rounded-md">
+          <PencilSquareIcon class="w-4 h-4" />
+        </button>
+        <button @click.stop
+          class="invisible group-hover:visible backdrop-blur-sm 
+          bg-gray-300 bg-opacity-50 hover:bg-gray-300 p-2 rounded-md">
+          <TrashIcon class="w-4 h-4" />
+        </button>
+      </div>
+    </template>
+    <template v-else>
+      <input type="text" v-model="editingFileName" ref="inputRef"
+        @keydown.enter="emit('rename', editingFileName); isEditingName = false"
+        @focusout="isEditingName = false"
+        @click.stop
+        class="w-full border rounded-sm p-2 focus:outline focus:outline-2 focus:outline-violet-400" />
+    </template>
   </div>
 </template>
 
@@ -18,9 +30,19 @@
 import TrashIcon from '@heroicons/vue/24/outline/TrashIcon';
 import PencilSquareIcon from '@heroicons/vue/24/outline/PencilSquareIcon';
 import { GraphFile } from '../../models/file-db';
+import { ref } from 'vue';
 
 
-defineProps<{
+const props = defineProps<{
   file: GraphFile
 }>();
+
+const emit = defineEmits<{
+  "rename": [newName: string];
+  'delete': [];
+}>();
+
+const isEditingName = ref(false);
+const editingFileName = ref(props.file.fileName);
+const inputRef = ref<HTMLInputElement>();
 </script>
