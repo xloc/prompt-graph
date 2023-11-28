@@ -23,21 +23,30 @@ export class GraphFileStorageDexie extends Dexie {
 
 export const db = new GraphFileStorageDexie();
 
-// first time launch this app, IndexedDB is empty.
-// so, create a empty file
 
-// after that IndexedDB is not empty
-// so, should load last edited file
 
-// to sum up, check local storage is empty or not
-// if empty, create a new empty file
-// otherwise, load last edited file
+export const getNewFileName = async (name?: string): Promise<string> => {
+  name = name ?? 'Untitled';
 
-// whenever file is edited, save it to IndexedDB
-// and update last edit file to local storage
+  // if name is unique, return it
+  const exist = await db.files.where('fileName').equals(name).first();
+  if (!exist) return name;
 
-const getUniqueFileName = (): Promise<string> => {
-  return Promise.resolve(new Date(Date.now()).toLocaleString());
+  // otherwise, add next ID to it
+  const lastAdded = await db.files.orderBy('id').last();
+  const lastID = lastAdded?.id ?? -1;
+  return `${name} ${(lastID + 1)}`
+}
+
+export const createNewFile = async (): Promise<GraphFile> => {
+  const newIntID = await db.files.add({
+    fileName: await getNewFileName(),
+    createAt: new Date(),
+    updateAt: new Date(),
+    content: '[]',
+  }) as string;
+  const file = await db.files.get(newIntID);
+  return file!;
 }
 
 export const EDITING_FILE_PRIMARY_KEY = 'editing-file-id';
@@ -52,26 +61,18 @@ export const getEditingFile = async (): Promise<GraphFile> => {
     if (file !== undefined) return file;
   }
   const existingFile = await getExistingFile();
-  console.log(existingFile);
-
   if (existingFile) return existingFile;
 
   // otherwise, create a new file in IndexedDB
-  const newFileName = await getUniqueFileName();
-  const newIntID = await db.files.add({
-    fileName: newFileName,
-    createAt: new Date(),
-    updateAt: new Date(),
-    content: '[]',
-  }) as string;
+  const newFile = await createNewFile();
   // update local storage
-  localStorage.setItem(EDITING_FILE_PRIMARY_KEY, newIntID.toString());
+  localStorage.setItem(EDITING_FILE_PRIMARY_KEY, newFile.id!.toString());
 
-  const file = await db.files.get(newIntID) as GraphFile;
-  return file
+  return newFile
 }
 
 (window as unknown as any).clearStorage = () => {
   db.files.clear();
   localStorage.clear();
 }
+

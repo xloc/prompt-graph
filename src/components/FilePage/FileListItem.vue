@@ -22,7 +22,7 @@
         class="w-full border rounded-sm p-2 focus:outline focus:outline-2 focus:outline-violet-400"
         @keydown.escape.stop="inputRef!.blur()"
         @keydown.enter="emit('rename', editingFileName); isEditingName = false"
-        @focusout="editingFileName = props.file.fileName; isEditingName = false"
+        @focusout="emit('rename', editingFileName); isEditingName = false"
         @click.stop />
     </template>
   </div>

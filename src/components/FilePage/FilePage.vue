@@ -1,12 +1,19 @@
 <template>
   <Page @close="close">
     <div class="grid grid-cols-[1fr_2fr] items-stretch gap-x-2 flex-shrink h-full" @dragover="dragover">
-      <div class="min-w-0 border | flex flex-col justify-start items-stretch | relative">
+      <div class="min-w-0 border | flex flex-col justify-start items-stretch | relative group/list">
         <FileListItem v-for="file in files" :key="file.id" :file="file"
           :class="{ 'bg-violet-50 hover:bg-violet-100': file.id === currentFile.id }"
           class="border-b border-b-gray-200 p-1 hover:bg-gray-50"
           @click="switchCurrentFile(file)"
           @rename="(name) => rename(file, name)" @delete="remove(file)"></FileListItem>
+        <div class="absolute inset-0 flex justify-end items-end p-3 gap-2 pointer-events-none">
+          <button @click="create()"
+            class="invisible group-hover/list:visible backdrop-blur-sm | pointer-events-auto |
+            bg-gray-300 bg-opacity-50 hover:bg-gray-300 p-2 rounded-md">
+            <PlusIcon class="w-4 h-4" />
+          </button>
+        </div>
       </div>
       <div class="min-w-0 border position relative">
         <div class="absolute inset-0 overflow-y-auto">
@@ -39,11 +46,12 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import Page from '../Page.vue'
 import { useKeyPress } from '../../composables/keypress';
-import { GraphFile, db, getEditingFile } from '../../models/file-db';
+import { GraphFile, createNewFile, db, getEditingFile, getNewFileName } from '../../models/file-db';
 import FileListItem from './FileListItem.vue';
 import DocumentDuplicateIcon from '@heroicons/vue/24/outline/DocumentDuplicateIcon';
 import ArrowUpTrayIcon from '@heroicons/vue/24/outline/ArrowUpTrayIcon';
 import ArrowDownTrayIcon from '@heroicons/vue/24/outline/ArrowDownTrayIcon';
+import PlusIcon from '@heroicons/vue/24/outline/PlusIcon';
 import { liveQuery, Subscription } from 'dexie';
 
 const props = defineProps<{
@@ -95,12 +103,13 @@ const dropThrows = async (e: DragEvent) => {
 
   const file = files[0];
   if (!file.type.includes('yaml')) throw new Error("should drop only yaml file");
+  const fileName = file.name.replace(/.yaml$/, '');
 
   currentFile.value = {
     createAt: new Date(),
     updateAt: new Date(),
     content: await file.text(),
-    fileName: file.name.replace(/.yaml$/, '')
+    fileName: await getNewFileName(fileName),
   };
 
   // display updates
@@ -151,5 +160,9 @@ const remove = async (file: GraphFile) => {
     currentFile.value = file;
   }
 };
+
+const create = async () => {
+  currentFile.value = await createNewFile();
+}
 
 </script>
