@@ -1,14 +1,14 @@
 <template>
   <Page @close="close">
-    <div class="flex items-stretch gap-x-2 flex-shrink h-full" @dragover="dragover">
-      <div class="flex-[3_3_0] border | flex flex-col justify-start items-stretch | relative">
+    <div class="grid grid-cols-[1fr_2fr] items-stretch gap-x-2 flex-shrink h-full" @dragover="dragover">
+      <div class="min-w-0 border | flex flex-col justify-start items-stretch | relative">
         <FileListItem v-for="file in files" :key="file.id" :file="file"
           :class="{ 'bg-violet-50 hover:bg-violet-100': file.id === currentFile.id }"
           class="border-b border-b-gray-200 p-1 hover:bg-gray-50"
           @click="switchCurrentFile(file)"
           @rename="(name) => rename(file, name)" @delete="remove(file)"></FileListItem>
       </div>
-      <div class="h-full flex-[7_7_0] border position relative">
+      <div class="min-w-0 border position relative">
         <div class="absolute inset-0 overflow-y-auto">
           <pre class="p-1 text-xs inset-0">{{ code }}</pre>
         </div>
@@ -132,8 +132,6 @@ const switchCurrentFile = async (file: GraphFile) => {
 }
 
 const rename = async (file: GraphFile, newName: string) => {
-  console.log({ id: file.id, fileName: newName });
-
   if (file.id === undefined) throw new Error("file.id is undefined");
   db.files.update(file.id, { fileName: newName }).catch(e => {
     console.error(e);
