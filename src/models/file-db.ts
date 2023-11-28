@@ -88,6 +88,7 @@ export const getEditingFile = async (): Promise<GraphFile> => {
       content: DEMO_GRAPH_YAML,
     });
     const file = await db.files.get(key)
+    localStorage.setItem(EDITING_FILE_PRIMARY_KEY, file!.id!.toString());
     return file!;
   }
 
