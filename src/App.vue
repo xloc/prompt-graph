@@ -3,11 +3,11 @@ import ConnectionCanvas from './components/ConnectionCanvas.vue';
 import BlockEdit from './components/BlockEditPage.vue';
 import Block from "./components/Block.vue";
 import { BlockModel, dump, load } from './models/model';
-import { onMounted, ref, watchEffect } from 'vue';
+import { onMounted, ref, watch, watchEffect } from 'vue';
 import SettingsPage from './components/SettingsPage.vue';
 import FilePage from './components/FilePage/FilePage.vue';
 import { EDITING_FILE_PRIMARY_KEY, GraphFile, db, getEditingFile } from './models/file-db';
-import _ from 'lodash';
+import _, { debounce } from 'lodash';
 
 
 const editingFile = ref<GraphFile>();
@@ -18,15 +18,31 @@ onMounted(async () => {
 const blocks = ref<BlockModel[]>([]);
 watchEffect(() => {
   if (!editingFile.value) return;
+  // FIXME: could be a cycle: editingFile -> blocks -> editingFile
   blocks.value = load(editingFile.value.content);
 });
-watchEffect(async () => {
+
+// debounced save to db, when blocks changed
+const saveToDB = debounce(async () => {
+  // FIXME: the function fire twice when move block around
   if (!editingFile.value || editingFile.value.id === undefined) return;
 
   editingFile.value.content = dump(blocks.value);
+  editingFile.value.updateAt = new Date();
   await db.files.put({ ...editingFile.value }, editingFile.value.id);
   localStorage.setItem(EDITING_FILE_PRIMARY_KEY, editingFile.value.id.toString());
-});
+}, 500)
+watch(
+  () => [blocks.value, editingFile.value] as const,
+  ([, prevFile], [, currFile]) => {
+    if (prevFile?.id !== currFile?.id) return;
+    saveToDB();
+  },
+  { deep: true }
+);
+
+// save new file to db
+// new file has its id undefined. new upload or create empty file trigger this
 watchEffect(async () => {
   if (!editingFile.value) return;
   if (editingFile.value.id === undefined) {
@@ -34,6 +50,7 @@ watchEffect(async () => {
   }
 });
 
+// modal and its controls
 const selection = ref<BlockModel | null>(null);
 const showSettings = ref(false);
 const showFiles = ref(localStorage.getItem("showFiles") === "true");
