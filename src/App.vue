@@ -8,6 +8,7 @@ import SettingsPage from './components/SettingsPage.vue';
 import FilePage from './components/FilePage/FilePage.vue';
 import { EDITING_FILE_PRIMARY_KEY, GraphFile, db, getEditingFile } from './models/file-db';
 import _, { debounce } from 'lodash';
+import { readableTime } from './formatter/time';
 
 
 const editingFile = ref<GraphFile>();
@@ -62,13 +63,21 @@ watchEffect(() => {
 
 <template>
   <div class="relative w-screen h-screen overflow-hidden">
+    <div class="absolute bottom-3 right-3" v-if="editingFile">
+      <h1 class="text-xl text-gray-300 text-right">
+        {{ editingFile.fileName }}</h1>
+      <p class="text-sm font-light text-gray-200 text-right">
+        {{ readableTime(editingFile.createAt, 'created') }}</p>
+      <p class="text-sm font-light text-gray-200 text-right">
+        {{ readableTime(editingFile.updateAt, 'updated') }}</p>
+    </div>
     <Block v-for="(_, i) in blocks"
       v-model="blocks[i]" @edit="selection = blocks[i]" @click.meta="selection = blocks[i]"
       class="z-0" />
     <ConnectionCanvas :blocks="blocks" class="absolute pointer-events-none" />
 
     <button @click="showFiles = true"
-      class="absolute bottom-5 right-5 p-3 rounded-full border shadow-md w-12 h-12 overflow-hidden hover:bg-gray-200">
+      class="absolute bottom-5 left-5 p-3 rounded-full border shadow-md w-12 h-12 overflow-hidden hover:bg-gray-200">
       <img src="./assets/cog-8-tooth.svg" class="w-full h-full" />
     </button>
 

@@ -33,7 +33,7 @@ import TrashIcon from '@heroicons/vue/24/outline/TrashIcon';
 import PencilSquareIcon from '@heroicons/vue/24/outline/PencilSquareIcon';
 import { GraphFile } from '../../models/file-db';
 import { computed, nextTick, ref } from 'vue';
-import { format, formatRelative, isPast, isAfter, sub } from 'date-fns';
+import { readableTime } from '../../formatter/time';
 
 
 const props = defineProps<{
@@ -48,13 +48,5 @@ const emit = defineEmits<{
 const isEditingName = ref(false);
 const editingFileName = ref(props.file.fileName);
 const inputRef = ref<HTMLInputElement>();
-const updateTime = computed(() => {
-  const time = props.file.updateAt;
-  // if is less than 1 day before, show relative time
-  if (isPast(time) && isAfter(time, sub(Date.now(), { days: 1 }))) {
-    return 'updated ' + formatRelative(time, Date.now());
-  } else {
-    return 'updated at ' + format(time, 'yyyy-MM-dd HH:mm:ss');
-  }
-})
+const updateTime = computed(() => readableTime(props.file.updateAt, "updated"));
 </script>
