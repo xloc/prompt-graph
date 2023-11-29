@@ -62,7 +62,8 @@ watchEffect(() => {
 </script>
 
 <template>
-  <div class="relative w-screen h-screen overflow-hidden">
+  <div class="relative w-screen h-screen overflow-hidden bg-[url('/src/assets/grid.svg')]">
+    <div class="bg-zinc-200"></div>
     <div class="absolute bottom-3 right-3" v-if="editingFile">
       <h1 class="text-xl text-gray-300 text-right">
         {{ editingFile.fileName }}</h1>
@@ -77,7 +78,8 @@ watchEffect(() => {
     <ConnectionCanvas :blocks="blocks" class="absolute pointer-events-none" />
 
     <button @click="showFiles = true"
-      class="absolute bottom-5 left-5 p-3 rounded-full border shadow-md w-12 h-12 overflow-hidden hover:bg-gray-200">
+      class="absolute bottom-5 left-5 p-3 rounded-full border shadow-md w-12 h-12 overflow-hidden |
+      bg-white hover:bg-gray-50">
       <img src="./assets/cog-8-tooth.svg" class="w-full h-full" />
     </button>
 
