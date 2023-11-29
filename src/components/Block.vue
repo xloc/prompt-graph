@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive } from 'vue';
+import { computed } from 'vue';
 import { BlockModel } from '../models/model';
 
 
@@ -28,10 +28,10 @@ const emit = defineEmits<{
   "update:modelValue": [value: BlockModel];
   "edit": [];
 }>();
-const block = reactive(computed({
+const block = computed({
   get: () => props.modelValue,
   set: v => emit("update:modelValue", v),
-}));
+});
 
 const offset = { x: 0, y: 0 };
 
