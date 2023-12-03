@@ -1,6 +1,6 @@
 <template>
   <TransitionRoot :show="open" as="template" @after-leave="query = ''" appear>
-    <Dialog as="div" class="relative z-20">
+    <Dialog as="div" class="relative z-20" @close="$emit('close')">
       <!-- backdrop -->
       <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100"
         leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
@@ -37,28 +37,19 @@
 import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption, Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 import { computed, ref } from 'vue';
+import { Action } from '../../models/action';
 
-defineProps<{ open: boolean }>()
-
-interface Action {
-  id: string;
-  name: string;
-}
-
-const onSelect = (action: Action) => {
-  console.log(action);
-}
+const props = defineProps<{ open: boolean, actions: Action[] }>();
+const emit = defineEmits<{ close: [], select: [Action] }>();
 
 const query = ref('');
 
-const actions = [
-  { id: 'files', name: 'Open Files...' },
-  { id: 'new_file', name: 'Create a New File' },
-  { id: 'add_block', name: 'Add Block' },
-  { id: 'delete_block', name: 'Delete Block under Cursor' },
-]
-
 const filteredActions = computed(() => {
-  return actions.filter(a => a.name.toLowerCase().includes(query.value.toLowerCase()));
+  return props.actions.filter(a => a.name.toLowerCase().includes(query.value.toLowerCase()));
 })
+
+const onSelect = (action: Action) => {
+  emit('close');
+  emit('select', action);
+}
 </script>

@@ -3,19 +3,24 @@ import ConnectionCanvas from './components/ConnectionCanvas.vue';
 import BlockEdit from './components/BlockEditPage.vue';
 import Block from "./components/Block.vue";
 import { BlockModel, dump, load } from './models/model';
-import { onMounted, ref, watch, watchEffect } from 'vue';
+import { onMounted, onUnmounted, ref, watch, watchEffect } from 'vue';
 import SettingsPage from './components/SettingsPage.vue';
 import SearchPage from './components/SearchPage/SearchPage.vue';
 import FilePage from './components/FilePage/FilePage.vue';
 import { EDITING_FILE_PRIMARY_KEY, GraphFile, db, getEditingFile } from './models/file-db';
 import _, { debounce } from 'lodash';
 import { readableTime } from './formatter/time';
+import { Action } from './models/action';
+import { MagnifyingGlassIcon } from '@heroicons/vue/24/outline';
+
 
 
 const editingFile = ref<GraphFile>();
 onMounted(async () => {
   editingFile.value = await getEditingFile();
 });
+
+const selectedBlockIndex = ref<number | null>(null);
 
 const blocks = ref<BlockModel[]>([]);
 watchEffect(() => {
@@ -52,19 +57,64 @@ watchEffect(async () => {
   }
 });
 
+
+const commandKeyPressed = (event: KeyboardEvent) => {
+  if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === "p") {
+    event.preventDefault();
+    event.stopPropagation();
+    showSearch.value = true;
+  }
+}
+onMounted(() => {
+  window.addEventListener('keydown', commandKeyPressed);
+});
+onUnmounted(() => {
+  window.removeEventListener('keydown', commandKeyPressed);
+});
+
+const mousePosition = ref<{ x: number, y: number }>({ x: 0, y: 0 });
+const updateMousePosition = (event: MouseEvent) => {
+  mousePosition.value = { x: event.clientX, y: event.clientY };
+}
+
 // modal and its controls
-const selection = ref<BlockModel | null>(null);
+const editingBlock = ref<BlockModel | null>(null);
 const showSettings = ref(false);
 const showFiles = ref(localStorage.getItem("showFiles") === "true");
-const showSearch = ref(true);
+const showSearch = ref(false);
 watchEffect(() => {
   localStorage.setItem("showFiles", showFiles.value.toString());
 });
+
+
+const actions: Action[] = [
+  { id: 'files', name: 'Open Files...', action: () => showFiles.value = true },
+  { id: 'new_file', name: 'Create a New File' },
+  {
+    id: 'add_block', name: 'Add Block', action: () => {
+      blocks.value.push({
+        id: Math.random().toString(36).substr(2, 9),
+        title: 'New Block',
+        prompt: 'New Prompt',
+        xyhw: { x: mousePosition.value.x, y: mousePosition.value.y, width: 200, height: 150 }
+      });
+    }
+  },
+  {
+    id: 'delete_block', name: 'Delete Block under Cursor', action: () => {
+      if (selectedBlockIndex.value === null) return;
+      blocks.value.splice(selectedBlockIndex.value, 1);
+    }
+  },
+]
 
 </script>
 
 <template>
   <div class="relative w-screen h-screen overflow-hidden bg-[url('/src/assets/grid.svg')]">
+    <div @mousemove="updateMousePosition" class="absolute inset-0">
+
+    </div>
     <div class="bg-zinc-200"></div>
     <div class="absolute bottom-3 right-3" v-if="editingFile">
       <h1 class="text-xl text-gray-300 text-right">
@@ -74,21 +124,23 @@ watchEffect(() => {
       <p class="text-sm font-light text-gray-200 text-right">
         {{ readableTime(editingFile.updateAt, 'updated') }}</p>
     </div>
-    <Block v-for="(_, i) in blocks"
-      v-model="blocks[i]" @edit="selection = blocks[i]" @click.meta="selection = blocks[i]"
-      class="z-0" />
+    <Block v-for="(_, i) in blocks" v-model="blocks[i]" :key="i" class="z-0"
+      :class="{ 'ring-1 ring-violet-500': selectedBlockIndex === i }"
+      @edit="editingBlock = blocks[i]" @click.meta="editingBlock = blocks[i]"
+      @click="selectedBlockIndex = selectedBlockIndex !== i ? i : null" />
     <ConnectionCanvas :blocks="blocks" class="absolute pointer-events-none" />
 
-    <button @click="showFiles = true"
+    <button @click="showSearch = true"
       class="absolute bottom-5 left-5 p-3 rounded-full border shadow-md w-12 h-12 overflow-hidden |
       bg-white hover:bg-gray-50">
-      <img src="./assets/cog-8-tooth.svg" class="w-full h-full" />
+      <MagnifyingGlassIcon class="w-full h-full" />
     </button>
 
 
-    <BlockEdit v-if="selection" v-model="selection" @close="selection = null"></BlockEdit>
+    <BlockEdit v-if="editingBlock" v-model="editingBlock" @close="editingBlock = null"></BlockEdit>
     <SettingsPage v-if="showSettings" @close="showSettings = false" />
     <FilePage v-if="showFiles && editingFile" @close="showFiles = false" v-model="editingFile" />
-    <SearchPage :open="showSearch" @close="showSearch = false" />
+    <SearchPage :actions="actions" :open="showSearch" @close="showSearch = false"
+      @select="a => (actions.find(i => i.id === a.id)?.action ?? _.noop)()" />
   </div>
 </template>
