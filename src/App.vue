@@ -5,6 +5,7 @@ import Block from "./components/Block.vue";
 import { BlockModel, dump, load } from './models/model';
 import { onMounted, ref, watch, watchEffect } from 'vue';
 import SettingsPage from './components/SettingsPage.vue';
+import SearchPage from './components/SearchPage/SearchPage.vue';
 import FilePage from './components/FilePage/FilePage.vue';
 import { EDITING_FILE_PRIMARY_KEY, GraphFile, db, getEditingFile } from './models/file-db';
 import _, { debounce } from 'lodash';
@@ -55,6 +56,7 @@ watchEffect(async () => {
 const selection = ref<BlockModel | null>(null);
 const showSettings = ref(false);
 const showFiles = ref(localStorage.getItem("showFiles") === "true");
+const showSearch = ref(true);
 watchEffect(() => {
   localStorage.setItem("showFiles", showFiles.value.toString());
 });
@@ -87,5 +89,6 @@ watchEffect(() => {
     <BlockEdit v-if="selection" v-model="selection" @close="selection = null"></BlockEdit>
     <SettingsPage v-if="showSettings" @close="showSettings = false" />
     <FilePage v-if="showFiles && editingFile" @close="showFiles = false" v-model="editingFile" />
+    <SearchPage :open="showSearch" @close="showSearch = false" />
   </div>
 </template>
