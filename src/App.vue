@@ -78,7 +78,7 @@ const updateMousePosition = (event: MouseEvent) => {
 }
 
 // modal and its controls
-const editingBlock = ref<BlockModel | null>(null);
+const editingBlockIndex = ref<number | null>(null);
 const showSettings = ref(false);
 const showFiles = ref(localStorage.getItem("showFiles") === "true");
 const showSearch = ref(false);
@@ -126,7 +126,7 @@ const actions: Action[] = [
     </div>
     <Block v-for="(_, i) in blocks" v-model="blocks[i]" :key="i" class="z-0"
       :class="{ 'ring-1 ring-violet-500': selectedBlockIndex === i }"
-      @edit="editingBlock = blocks[i]" @click.meta="editingBlock = blocks[i]"
+      @edit="editingBlockIndex = i" @click.meta="editingBlockIndex = i"
       @click="selectedBlockIndex = selectedBlockIndex !== i ? i : null" />
     <ConnectionCanvas :blocks="blocks" class="absolute pointer-events-none" />
 
@@ -137,7 +137,8 @@ const actions: Action[] = [
     </button>
 
 
-    <BlockEdit v-if="editingBlock" v-model="editingBlock" @close="editingBlock = null"></BlockEdit>
+    <BlockEdit v-if="editingBlockIndex !== null" v-model="blocks[editingBlockIndex]"
+      @close="editingBlockIndex = null" />
     <SettingsPage v-if="showSettings" @close="showSettings = false" />
     <FilePage v-if="showFiles && editingFile" @close="showFiles = false" v-model="editingFile" />
     <SearchPage :actions="actions" :open="showSearch" @close="showSearch = false"
