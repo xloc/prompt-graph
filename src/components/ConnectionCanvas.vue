@@ -4,13 +4,22 @@ import { BlockModel } from '../models/model';
 
 const props = defineProps<{ blocks: BlockModel[]; }>();
 const canvas = ref<HTMLCanvasElement | null>(null);
-const h = ref(0);
-const w = ref(0);
 
 const updateSize = async () => {
-  h.value = window.innerHeight;
-  w.value = window.innerWidth;
   await nextTick();
+  // const scale = 1; // Change to 1 on retina screens to see blurry canvas.
+  const scale = window.devicePixelRatio; // Change to 1 on retina screens to see blurry canvas.
+  console.log('scale', scale);
+
+  const { innerWidth, innerHeight } = window;
+  canvas.value!.style.width = `${innerWidth}px`;
+  canvas.value!.style.height = `${innerHeight}px`;
+  canvas.value!.width = innerWidth * scale;
+  canvas.value!.height = innerHeight * scale;
+
+  const ctx = canvas.value?.getContext('2d');
+  ctx!.scale(scale, scale);
+
   drawConnections();
 };
 
@@ -52,7 +61,7 @@ const drawConnections = () => {
   const ctx = canvas.value?.getContext('2d');
   if (!ctx) return;
 
-  ctx.clearRect(0, 0, w.value, h.value);
+  ctx.clearRect(0, 0, canvas.value!.width, canvas.value!.height);
 
   ctx.strokeStyle = 'black';
   // ctx.filter = 'drop-shadow(3px 3px 1px #0008)';
@@ -78,5 +87,5 @@ watchEffect(() => {
 </script>
 
 <template>
-  <canvas ref="canvas" :height="h" :width="w"></canvas>
+  <canvas ref="canvas"></canvas>
 </template>
