@@ -9,7 +9,7 @@ import { BlockModel } from "./model";
 export const getDependencies = (block: BlockModel): string[] => {
   const prompt = block.prompt;
   const matches = prompt.matchAll(/\{(\w+)\}/g);
-  return [...matches].map(m => m[1]);
+  return _.uniq([...matches].map(m => m[1]));
 };
 
 /**
