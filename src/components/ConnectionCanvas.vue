@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nextTick, onMounted, onUnmounted, ref, watchEffect } from 'vue';
 import { BlockModel } from '../models/model';
+import { getDependencies } from '../models/inference';
 
 const props = defineProps<{ blocks: BlockModel[]; }>();
 const canvas = ref<HTMLCanvasElement | null>(null);
@@ -21,16 +22,10 @@ const updateSize = async () => {
   drawConnections();
 };
 
-const getParentIDsOf = (block: BlockModel) => {
-  const prompt = block.prompt;
-  const matches = prompt.matchAll(/\{(\w+)\}/g);
-  return [...matches].map(m => m[1]);
-};
-
 const drawAllConnectionTo = (to: BlockModel, ctx: CanvasRenderingContext2D) => {
   const toX = to.xyhw.x;
   const toY = to.xyhw.y + to.xyhw.height / 2;
-  const parents = getParentIDsOf(to)
+  const parents = getDependencies(to)
     .map(id => props.blocks.find(b => b.id === id))
     .filter(b => b !== undefined) as BlockModel[];
 
