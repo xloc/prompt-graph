@@ -7,9 +7,7 @@ const canvas = ref<HTMLCanvasElement | null>(null);
 
 const updateSize = async () => {
   await nextTick();
-  // const scale = 1; // Change to 1 on retina screens to see blurry canvas.
-  const scale = window.devicePixelRatio; // Change to 1 on retina screens to see blurry canvas.
-  console.log('scale', scale);
+  const scale = window.devicePixelRatio;
 
   const { innerWidth, innerHeight } = window;
   canvas.value!.style.width = `${innerWidth}px`;
