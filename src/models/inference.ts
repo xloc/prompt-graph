@@ -19,8 +19,8 @@ export const getDependencies = (block: BlockModel): string[] => {
  * @returns The sorted array of BlockModel objects.
  * @throws Error if a cycle is detected in the graph or if a block's dependency does not exist.
  */
-export const topologicalSort = (blocks: BlockModel[]): BlockModel[] => {
-  const sorted: BlockModel[] = [];
+export const topologicalArgSort = (blocks: BlockModel[]): number[] => {
+  const sorted: number[] = [];
   const temporaryMark: boolean[] = _.times(blocks.length, _.constant(false));
   const permanentMark: boolean[] = _.times(blocks.length, _.constant(false));
 
@@ -39,9 +39,20 @@ export const topologicalSort = (blocks: BlockModel[]): BlockModel[] => {
 
     temporaryMark[blockIndex] = false;
     permanentMark[blockIndex] = true;
-    sorted.push(block);
+    sorted.push(blockIndex);
   };
 
   _.range(blocks.length).forEach(visit);
   return sorted;
+}
+
+export const topologicalSort = (blocks: BlockModel[]): BlockModel[] => {
+  const sorted = topologicalArgSort(blocks);
+  return sorted.map(i => blocks[i]);
+}
+
+export interface Inference {
+  status: "done" | "error" | "running" | "paused";
+  order: BlockModel[] | undefined;
+  progress: number;
 }
