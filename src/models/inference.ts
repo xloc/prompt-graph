@@ -52,7 +52,8 @@ export const topologicalSort = (blocks: BlockModel[]): BlockModel[] => {
 }
 
 export interface Inference {
-  status: "done" | "error" | "running" | "paused";
+  isInferencing: boolean;
+  isClean: boolean;
   order: BlockModel[] | undefined;
   progress: number;
 }
