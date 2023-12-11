@@ -13,6 +13,7 @@ export interface BlockModel {
   id: string;
   title: string;
   prompt: string;
+  output?: string;
 }
 
 export const dump = (block: BlockModel[]) => {

@@ -144,6 +144,6 @@ const actions: Action[] = [
     <FilePage v-if="showFiles && editingFile" @close="showFiles = false" v-model="editingFile" />
     <SearchPage :actions="actions" :open="showSearch" @close="showSearch = false"
       @select="a => (actions.find(i => i.id === a.id)?.action ?? _.noop)()" />
-    <InferenceWidget class="z-0"></InferenceWidget>
+    <InferenceWidget class="z-0" :blocks="blocks"></InferenceWidget>
   </div>
 </template>
