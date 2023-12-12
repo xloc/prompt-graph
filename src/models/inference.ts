@@ -52,15 +52,15 @@ export const topologicalSort = (blocks: BlockModel[]): BlockModel[] => {
   return sorted.map(i => blocks[i]);
 }
 
-export const gptInference = (i: number, blocks: BlockModel[]) => {
-  throw new Error("Not implemented");
-  const block = blocks[i];
-  const id2outputs = _(getDependencies(block))
-    .map(id => ({ id, output: blocks.find(b => b.id === id)!.output! }))
-  const interpoloatedPrompt = block.prompt.replace(/\{(\w+)\}/g, (_, id) => {
-    return id2outputs.find(o => o.id === id)!.output;
-  });
-}
+// export const gptInference = (i: number, blocks: BlockModel[]) => {
+//   throw new Error("Not implemented");
+//   const block = blocks[i];
+//   const id2outputs = _(getDependencies(block))
+//     .map(id => ({ id, output: blocks.find(b => b.id === id)!.output! }))
+//   const interpoloatedPrompt = block.prompt.replace(/\{(\w+)\}/g, (_, id) => {
+//     return id2outputs.find(o => o.id === id)!.output;
+//   });
+// }
 
 export interface Inference {
   isInferencing: boolean;
