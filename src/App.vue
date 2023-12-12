@@ -91,6 +91,7 @@ watchEffect(() => {
 const actions: Action[] = [
   { id: 'files', name: 'Open Files...', action: () => showFiles.value = true },
   { id: 'new_file', name: 'Create a New File' },
+  { id: 'show_settings', name: "Open Settings", action: () => showSettings.value = true },
   {
     id: 'add_block', name: 'Add Block', action: () => {
       blocks.value.push({

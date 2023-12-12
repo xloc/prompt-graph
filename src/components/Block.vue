@@ -1,17 +1,20 @@
 <template>
   <div @mousedown="start" @mouseup="reset"
     class="absolute border rounded-sm shadow-md flex flex-col justify-start items-start bg-white overflow-y-auto overflow-x-hidden |
-    hover:shadow-lg cursor-move"
+    hover:shadow-lg cursor-move group"
     :style="{ width: `${block.xyhw.width}px`, height: `${block.xyhw.height}px`, left: `${block.xyhw.x}px`, top: `${block.xyhw.y}px` }">
     <h1 class="w-full flex-none to-gray-950 text-md m-2 mb-0">{{ block.title }}</h1>
     <h2 class="w-full flex-none text-gray-400 text-xs m-2 mt-0">{{ '{' + block.id + '}' }}</h2>
-    <div class="flex-1 h-10 w-full px-2 resize-none ">
-      <div class="resize-none text-xs text-gray-500 w-full h-full pointer-events-none" contenteditable="true"
-        @mousedown.stop v-html="highlighted">
+    <div class="flex-1 h-10 w-full px-2 resize-none | flex flex-col">
+      <div class="text-xs text-gray-500 w-full pointer-events-none">
+        <span class="text-gray-300">Q:</span> <span v-html="highlighted" />
       </div>
-
+      <div class="text-xs text-gray-500 w-full pointer-events-none mt-1"
+        v-if="block.output">
+        <span class="text-gray-300">A:</span> {{ block.output }}
+      </div>
     </div>
-    <ul class="flex justify-end w-full p-2 px-2 text-sm">
+    <ul class="flex justify-end w-full p-2 px-2 text-sm invisible group-hover:visible">
       <button class="text-violet-500 p-1 px-2 rounded-sm hover:bg-gray-200"
         @click="emit('edit')">EDIT</button>
     </ul>

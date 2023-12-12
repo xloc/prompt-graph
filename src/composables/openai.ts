@@ -3,7 +3,10 @@ import { computed, onMounted, ref } from "vue";
 
 export const useOpenAI = () => {
   const apikey = ref(localStorage.getItem('apikey'));
-  const openai = computed(() => apikey.value ? new OpenAI({ apiKey: apikey.value }) : undefined);
+  const openai = computed(() => {
+    if (!apikey.value) return undefined;
+    return new OpenAI({ apiKey: apikey.value, dangerouslyAllowBrowser: true })
+  });
 
   onMounted(() => {
     const callback = (e: StorageEvent) => {

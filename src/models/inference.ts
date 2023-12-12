@@ -1,6 +1,8 @@
 import _ from "lodash";
 import { MaybeRef, isRef, ref, watchEffect } from "vue";
 import { BlockModel } from "./model";
+import { useOpenAI } from "../composables/openai";
+import OpenAI from "openai";
 
 /**
  * Resolve the depended blocks IDs from the prompt.
@@ -52,15 +54,24 @@ export const topologicalSort = (blocks: BlockModel[]): BlockModel[] => {
   return sorted.map(i => blocks[i]);
 }
 
-// export const gptInference = (i: number, blocks: BlockModel[]) => {
-//   throw new Error("Not implemented");
-//   const block = blocks[i];
-//   const id2outputs = _(getDependencies(block))
-//     .map(id => ({ id, output: blocks.find(b => b.id === id)!.output! }))
-//   const interpoloatedPrompt = block.prompt.replace(/\{(\w+)\}/g, (_, id) => {
-//     return id2outputs.find(o => o.id === id)!.output;
-//   });
-// }
+export const gptInference = async (i: number, blocks: BlockModel[], openai: OpenAI) => {
+  const block = blocks[i];
+  const id2outputs = _(getDependencies(block))
+    .map(id => ({ id, output: blocks.find(b => b.id === id)!.output! }))
+  const interpoloatedPrompt = block.prompt.replace(/\{(\w+)\}/g, (_, id) => {
+    return id2outputs.find(o => o.id === id)!.output;
+  });
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-3.5-turbo",
+    max_tokens: 20,
+    messages: [
+      { role: "user", content: interpoloatedPrompt },
+    ],
+  });
+  const completion = response.choices[0].message.content!;
+  return completion
+}
 
 export interface Inference {
   isInferencing: boolean;
@@ -69,31 +80,36 @@ export interface Inference {
 }
 
 export const useInference = (blocks: MaybeRef<BlockModel[]>) => {
+  const openai = useOpenAI();
   const infenece = ref<Inference>({
     isInferencing: false,
     order: undefined,
     progress: 0,
   });
 
+
   const blocksRef = isRef(blocks) ? blocks : ref(blocks);
   watchEffect(() => {
-    if (blocksRef.value) infenece.value.order = topologicalSort(blocksRef.value);
+    if (blocksRef.value)
+      infenece.value.order = topologicalSort(blocksRef.value);
   });
 
   const doInference = async () => {
-    if (infenece.value.progress >= infenece.value.order!.length - 1) return;
+    let i = infenece.value.progress;
+    const n = infenece.value.order!.length
+    if (i >= n) { infenece.value.isInferencing = false; return; }
+
     // do inference
-    await new Promise(resolve => setTimeout(resolve, 500)); // dummy
+    const response = await gptInference(i, infenece.value.order!, openai.value!)
+    infenece.value.order![i].output = response;
 
     // when finished, increment progress
     infenece.value.progress += 1;
+    i += 1;
+
     // if still inferencing, set another timeout
-    if (
-      infenece.value.progress < infenece.value.order!.length &&
-      infenece.value.isInferencing
-    ) {
+    if (i < n && infenece.value.isInferencing)
       setTimeout(doInference);
-    }
   }
   watchEffect(() => {
     if (infenece.value.isInferencing) {
