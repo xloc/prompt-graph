@@ -74,6 +74,7 @@ export const gptInference = async (i: number, blocks: BlockModel[], openai: Open
 }
 
 export interface Inference {
+  show: boolean;
   isInferencing: boolean;
   order: BlockModel[] | undefined;
   progress: number;
@@ -82,6 +83,7 @@ export interface Inference {
 export const useInference = (blocks: MaybeRef<BlockModel[]>) => {
   const openai = useOpenAI();
   const infenece = ref<Inference>({
+    show: false,
     isInferencing: false,
     order: undefined,
     progress: 0,

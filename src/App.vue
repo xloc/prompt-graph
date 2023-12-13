@@ -13,6 +13,7 @@ import { readableTime } from './formatter/time';
 import { Action } from './models/action';
 import { MagnifyingGlassIcon } from '@heroicons/vue/24/outline';
 import InferenceWidget from './components/inference/InferenceWidget.vue';
+import { useInference } from './models/inference';
 
 
 
@@ -87,11 +88,16 @@ watchEffect(() => {
   localStorage.setItem("showFiles", showFiles.value.toString());
 });
 
+// inferencing
+const inference = useInference(blocks);
+
 
 const actions: Action[] = [
   { id: 'files', name: 'Open Files...', action: () => showFiles.value = true },
   { id: 'new_file', name: 'Create a New File' },
   { id: 'show_settings', name: "Open Settings", action: () => showSettings.value = true },
+  { id: 'show_inference', name: "Show Inference Toolbar", action: () => inference.value.show = true },
+  { id: 'hide_inference', name: "Hide Inference Toolbar", action: () => inference.value.show = false },
   {
     id: 'add_block', name: 'Add Block', action: () => {
       blocks.value.push({
@@ -138,6 +144,7 @@ const actions: Action[] = [
       <MagnifyingGlassIcon class="w-full h-full" />
     </button>
 
+    <InferenceWidget class="" :inference="inference" />
 
     <BlockEdit v-if="editingBlockIndex !== null" v-model="blocks[editingBlockIndex]"
       @close="editingBlockIndex = null" />
@@ -145,6 +152,5 @@ const actions: Action[] = [
     <FilePage v-if="showFiles && editingFile" @close="showFiles = false" v-model="editingFile" />
     <SearchPage :actions="actions" :open="showSearch" @close="showSearch = false"
       @select="a => (actions.find(i => i.id === a.id)?.action ?? _.noop)()" />
-    <InferenceWidget class="z-0" :blocks="blocks"></InferenceWidget>
   </div>
 </template>
