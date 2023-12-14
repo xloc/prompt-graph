@@ -75,8 +75,10 @@ export const gptInference = async (i: number, blocks: BlockModel[], openai: Open
 
 export interface Inference {
   show: boolean;
+
+  isStarted: boolean;
   isInferencing: boolean;
-  order: BlockModel[] | undefined;
+  order: BlockModel[];
   progress: number;
 }
 
@@ -84,8 +86,10 @@ export const useInference = (blocks: MaybeRef<BlockModel[]>) => {
   const openai = useOpenAI();
   const infenece = ref<Inference>({
     show: false,
+
+    isStarted: false,
     isInferencing: false,
-    order: undefined,
+    order: [],
     progress: 0,
   });
 
@@ -99,22 +103,27 @@ export const useInference = (blocks: MaybeRef<BlockModel[]>) => {
   const doInference = async () => {
     let i = infenece.value.progress;
     const n = infenece.value.order!.length
-    if (i >= n) { infenece.value.isInferencing = false; return; }
+    if (i >= n) { infenece.value.isStarted = false; infenece.value.isInferencing = false; return; }
 
     // do inference
+    infenece.value.isInferencing = true;
     const response = await gptInference(i, infenece.value.order!, openai.value!)
     infenece.value.order![i].output = response;
+    infenece.value.isInferencing = false;
 
     // when finished, increment progress
     infenece.value.progress += 1;
     i += 1;
 
     // if still inferencing, set another timeout
-    if (i < n && infenece.value.isInferencing)
+    if (i < n && infenece.value.isStarted)
       setTimeout(doInference);
+    else
+      infenece.value.isStarted = false;
   }
   watchEffect(() => {
-    if (infenece.value.isInferencing) {
+    if (infenece.value.isStarted) {
+      // FIXIT: setTimeout is required, or miltiple inference will be triggered
       setTimeout(doInference);
     }
   });
