@@ -1,6 +1,6 @@
 <template>
-  <div class="absolute inset-0 pointer-events-none" v-if="inference.show">
-    <div :style="{ left: `${xy.x}px`, top: `${xy.y}px` }" @mousedown="mousedown" @mouseup="mouseup"
+  <div class="fixed inset-0 pointer-events-none" v-if="inference.show">
+    <div :style="style" ref="toolbarElement"
       class="flex absolute h-10 pointer-events-auto
       | border rounded-md shadow-lg bg-white overflow-hidden group">
       <button @click="toggleStart"
@@ -39,8 +39,8 @@
 <script setup lang="ts">
 import { PlayIcon, PauseIcon, XMarkIcon, TrashIcon } from '@heroicons/vue/24/outline'
 import { Inference } from '../../models/inference';
-import { computed } from 'vue';
-import { useDrag } from '../../composables/drag';
+import { computed, ref, watchEffect } from 'vue';
+import { useDraggable, useLocalStorage, watchThrottled } from '@vueuse/core'
 
 const props = defineProps<{ inference: Inference }>();
 
@@ -57,5 +57,15 @@ const clearInferences = () => {
   props.inference.order?.forEach(block => delete block.output);
 }
 
-const { xy, mousedown, mouseup } = useDrag('inference-toolbar');
+const toolbarElement = ref<HTMLElement | null>(null);
+const xy = useLocalStorage('inference-toolbar-xy', { x: 20, y: 20 });
+const { x, y, style } = useDraggable(toolbarElement, { initialValue: xy.value });
+watchThrottled(
+  [x, y],
+  () => {
+    xy.value = { x: x.value, y: y.value };
+    console.log('changed');
+  },
+  { throttle: 200 },
+)
 </script>
