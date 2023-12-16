@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed inset-0 pointer-events-none" v-if="inference.show">
+  <div class="fixed inset-0 pointer-events-none" v-if="show">
     <div :style="style" ref="toolbarElement"
       class="flex absolute h-10 pointer-events-auto
       | border rounded-md shadow-lg bg-white overflow-hidden group">
@@ -24,7 +24,7 @@
         </template>
       </button>
 
-      <button title="Close This Toolbar" @click="inference.show = false"
+      <button title="Close This Toolbar" @click="emit('update:show', false)"
         class="p-2 bg-white disabled:text-gray-400 hover:bg-slate-100 border-l">
         <XMarkIcon class="w-5 h-5 text-red-600" />
       </button>
@@ -39,10 +39,11 @@
 <script setup lang="ts">
 import { PlayIcon, PauseIcon, XMarkIcon, TrashIcon } from '@heroicons/vue/24/outline'
 import { Inference } from '../../models/inference';
-import { computed, ref, watchEffect } from 'vue';
+import { computed, ref } from 'vue';
 import { useDraggable, useLocalStorage, watchThrottled } from '@vueuse/core'
 
-const props = defineProps<{ inference: Inference }>();
+const props = defineProps<{ inference: Inference; show: boolean }>();
+const emit = defineEmits<{ "update:show": [boolean] }>();
 
 const isStarted = computed({
   get: () => props.inference.isStarted,
@@ -62,10 +63,7 @@ const xy = useLocalStorage('inference-toolbar-xy', { x: 20, y: 20 });
 const { x, y, style } = useDraggable(toolbarElement, { initialValue: xy.value });
 watchThrottled(
   [x, y],
-  () => {
-    xy.value = { x: x.value, y: y.value };
-    console.log('changed');
-  },
-  { throttle: 200 },
+  () => xy.value = { x: x.value, y: y.value },
+  { throttle: 1000 },
 )
 </script>

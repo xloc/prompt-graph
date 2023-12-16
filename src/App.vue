@@ -14,6 +14,7 @@ import { Action } from './models/action';
 import { MagnifyingGlassIcon } from '@heroicons/vue/24/outline';
 import InferenceWidget from './components/inference/InferenceWidget.vue';
 import { useInference } from './models/inference';
+import { useLocalStorage } from '@vueuse/core';
 
 
 
@@ -90,14 +91,15 @@ watchEffect(() => {
 
 // inferencing
 const inference = useInference(blocks);
+const showInferenceToolbar = useLocalStorage('inference-toolbar-show', false);
 
 
 const actions: Action[] = [
   { id: 'files', name: 'Open Files...', action: () => showFiles.value = true },
   { id: 'new_file', name: 'Create a New File' },
   { id: 'show_settings', name: "Open Settings", action: () => showSettings.value = true },
-  { id: 'show_inference', name: "Show Inference Toolbar", action: () => inference.value.show = true },
-  { id: 'hide_inference', name: "Hide Inference Toolbar", action: () => inference.value.show = false },
+  { id: 'show_inference', name: "Show Inference Toolbar", action: () => showInferenceToolbar.value = true },
+  { id: 'hide_inference', name: "Hide Inference Toolbar", action: () => showInferenceToolbar.value = false },
   {
     id: 'add_block', name: 'Add Block', action: () => {
       blocks.value.push({
@@ -144,7 +146,7 @@ const actions: Action[] = [
       <MagnifyingGlassIcon class="w-full h-full" />
     </button>
 
-    <InferenceWidget class="" :inference="inference" />
+    <InferenceWidget class="" :inference="inference" v-model:show="showInferenceToolbar" />
 
     <BlockEdit v-if="editingBlockIndex !== null" v-model="blocks[editingBlockIndex]"
       @close="editingBlockIndex = null" />
