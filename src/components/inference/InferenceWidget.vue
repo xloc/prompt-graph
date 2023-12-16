@@ -1,6 +1,6 @@
 <template>
-  <div class="fixed inset-0 pointer-events-none" v-if="show">
-    <div :style="style" ref="toolbarElement"
+  <div class="fixed inset-0 pointer-events-none" v-if="show" ref="overlay">
+    <div :style="style" ref="toolbar"
       class="flex absolute h-10 pointer-events-auto
       | border rounded-md shadow-lg bg-white overflow-hidden group">
       <button @click="toggleStart"
@@ -39,8 +39,8 @@
 <script setup lang="ts">
 import { PlayIcon, PauseIcon, XMarkIcon, TrashIcon } from '@heroicons/vue/24/outline'
 import { Inference } from '../../models/inference';
-import { computed, ref } from 'vue';
-import { useDraggable, useLocalStorage, watchThrottled } from '@vueuse/core'
+import { computed, ref, watchEffect } from 'vue';
+import { useDraggable, useLocalStorage, watchThrottled, useElementBounding } from '@vueuse/core'
 
 const props = defineProps<{ inference: Inference; show: boolean }>();
 const emit = defineEmits<{ "update:show": [boolean] }>();
@@ -58,12 +58,22 @@ const clearInferences = () => {
   props.inference.order?.forEach(block => delete block.output);
 }
 
-const toolbarElement = ref<HTMLElement | null>(null);
+const toolbar = ref<HTMLElement | null>(null);
 const xy = useLocalStorage('inference-toolbar-xy', { x: 20, y: 20 });
-const { x, y, style } = useDraggable(toolbarElement, { initialValue: xy.value });
+const { x, y, style } = useDraggable(toolbar, { initialValue: xy.value });
 watchThrottled(
   [x, y],
   () => xy.value = { x: x.value, y: y.value },
   { throttle: 1000 },
 )
+
+const overlay = ref<HTMLElement | null>(null);
+const { top, right, bottom, left } = useElementBounding(overlay);
+const { width, height } = useElementBounding(toolbar);
+watchEffect(() => {
+  if (x.value + width.value > right.value) x.value = right.value - width.value;
+  if (y.value + height.value > bottom.value) y.value = bottom.value - height.value;
+  if (x.value < left.value) x.value = left.value;
+  if (y.value < top.value) y.value = top.value;
+})
 </script>
