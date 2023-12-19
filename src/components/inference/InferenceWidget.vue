@@ -39,7 +39,7 @@
 <script setup lang="ts">
 import { PlayIcon, PauseIcon, XMarkIcon, TrashIcon } from '@heroicons/vue/24/outline'
 import { Inference } from '../../models/inference';
-import { computed, ref, watchEffect } from 'vue';
+import { computed, nextTick, ref, watchEffect } from 'vue';
 import { useDraggable, useLocalStorage, watchThrottled, useElementBounding } from '@vueuse/core'
 
 const props = defineProps<{ inference: Inference; show: boolean }>();
@@ -60,7 +60,7 @@ const clearInferences = () => {
 
 const toolbar = ref<HTMLElement | null>(null);
 const xy = useLocalStorage('inference-toolbar-xy', { x: 20, y: 20 });
-const { x, y, style } = useDraggable(toolbar, { initialValue: xy.value });
+const { x, y, style } = useDraggable(toolbar, { initialValue: xy });
 watchThrottled(
   [x, y],
   () => xy.value = { x: x.value, y: y.value },
@@ -70,7 +70,8 @@ watchThrottled(
 const overlay = ref<HTMLElement | null>(null);
 const { top, right, bottom, left } = useElementBounding(overlay);
 const { width, height } = useElementBounding(toolbar);
-watchEffect(() => {
+watchEffect(async () => {
+  await nextTick();
   if (x.value + width.value > right.value) x.value = right.value - width.value;
   if (y.value + height.value > bottom.value) y.value = bottom.value - height.value;
   if (x.value < left.value) x.value = left.value;
