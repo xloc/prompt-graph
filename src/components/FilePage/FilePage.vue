@@ -1,5 +1,5 @@
 <template>
-  <Page @close="close">
+  <Page @close="close" :open="open">
     <div class="grid grid-cols-[1fr_2fr] items-stretch gap-x-2 flex-shrink h-full" @dragover="dragover">
       <div class="min-w-0 border | flex flex-col justify-start items-stretch | relative group/list">
         <FileListItem v-for="file in files" :key="file.id" :file="file"
@@ -56,6 +56,7 @@ import { liveQuery, Subscription } from 'dexie';
 
 const props = defineProps<{
   modelValue: GraphFile,
+  open: boolean,
 }>();
 const emit = defineEmits<{
   "close": [];
