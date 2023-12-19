@@ -8,7 +8,6 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useKeyPress } from '../composables/keypress';
 import Page from './Page.vue';
 
 defineProps<{ open: boolean }>();
@@ -19,6 +18,4 @@ const apikey = computed({
   get: () => localStorage.getItem('apikey'),
   set: v => localStorage.setItem('apikey', v ?? ''),
 });
-
-useKeyPress('Escape', () => emit('close'));
 </script>
