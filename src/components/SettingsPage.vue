@@ -1,21 +1,16 @@
 <template>
-  <Page :open="open" @close="emit('close')" scrollable>
-    <label class="pl-2 text-md text-gray-500">APIKEY</label>
-    <input type="text" class="w-full border rounded-sm p-2 focus:outline focus:outline-2 focus:outline-violet-400"
-      placeholder="sk-xxxxx" v-model="apikey" />
+  <Page :open="open" @close="$emit('close')" scrollable>
+    <Field label="APIKEY" placeholder="sk-xxxxx" :model-value="apikey" @update:value="apikey = $event" />
   </Page>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
 import Page from './Page.vue';
+import Field from './field/Field.vue';
+import { useLocalStorage } from '@vueuse/core';
 
 defineProps<{ open: boolean }>();
-const emit = defineEmits<{
-  "close": [];
-}>();
-const apikey = computed({
-  get: () => localStorage.getItem('apikey'),
-  set: v => localStorage.setItem('apikey', v ?? ''),
-});
+defineEmits<{ "close": [] }>();
+
+const apikey = useLocalStorage('apikey', '');
 </script>
