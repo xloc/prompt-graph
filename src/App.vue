@@ -150,7 +150,7 @@ const actions: Action[] = [
 
     <BlockEdit v-if="editingBlockIndex !== null" v-model="blocks[editingBlockIndex]"
       @close="editingBlockIndex = null" />
-    <SettingsPage v-if="showSettings" @close="showSettings = false" />
+    <SettingsPage :open="showSettings" @close="showSettings = false" />
     <FilePage v-if="showFiles && editingFile" @close="showFiles = false" v-model="editingFile" />
     <SearchPage :actions="actions" :open="showSearch" @close="showSearch = false"
       @select="a => (actions.find(i => i.id === a.id)?.action ?? _.noop)()" />

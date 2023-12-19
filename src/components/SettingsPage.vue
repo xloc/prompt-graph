@@ -1,5 +1,5 @@
 <template>
-  <Page @close="emit('close')" scrollable>
+  <Page :open="open" @close="emit('close')" scrollable>
     <label class="pl-2 text-md text-gray-500">APIKEY</label>
     <input type="text" class="w-full border rounded-sm p-2 focus:outline focus:outline-2 focus:outline-violet-400"
       placeholder="sk-xxxxx" v-model="apikey" />
@@ -11,7 +11,7 @@ import { computed } from 'vue';
 import { useKeyPress } from '../composables/keypress';
 import Page from './Page.vue';
 
-
+defineProps<{ open: boolean }>();
 const emit = defineEmits<{
   "close": [];
 }>();

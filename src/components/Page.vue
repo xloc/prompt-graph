@@ -1,6 +1,6 @@
 <template>
-  <div class="absolute inset-0 
-    shadow-2xl backdrop-blur-sm bg-gray-800 bg-opacity-20 px-10"
+  <Dialog as="div" :open="open" @close="$emit('close')"
+    class="absolute inset-0 shadow-2xl backdrop-blur-sm bg-gray-800 bg-opacity-20 px-10"
     :class="[scrollable ? 'overflow-y-auto flex flex-col' : 'py-10']">
     <div class="h-10 flex-none" v-if="scrollable"></div>
 
@@ -13,10 +13,12 @@
     </div>
 
     <div class="h-10 flex-none" v-if="scrollable"></div>
-  </div>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
+import { Dialog } from '@headlessui/vue';
+
 defineEmits<{ "close": [] }>();
-defineProps<{ scrollable?: boolean }>();
+defineProps<{ scrollable?: boolean, open: boolean }>();
 </script>
