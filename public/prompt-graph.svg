@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+  fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+  class="w-6 h-6">
+  <rect stroke="none" width="24" height="24" fill="#aaf5" />
+  <!-- <rect x="3" y="3" width="10" height="10" fill="#e37878" stroke-linejoin="round" />
+  <rect x="10" y="10" width="10" height="10" fill="#588be3" stroke-linejoin="round" />
+
+  <path stroke="tomato" d="
+  M 13 8
+  c 8 0 -11 7 -3 7
+  " /> -->
+
+
+  <path d="
+  M 6 6
+  q -4 3 -3 7 T 10 17
+" />
+  <path d="
+  M 6 6
+  q -4 3 -3 7 T 10 17
+" />
+  <circle cx="6" cy="6" r="4" fill="#e37878" stroke-linejoin="round" />
+  <circle cx="10" cy="17" r="4" fill="#588be3" stroke-linejoin="round" />
+  <circle cx="18" cy="8" r="4" fill="#95d349" stroke-linejoin="round" />
+
+
+  <rect stroke-width="0.1" width="12" height="12" />
+
+</svg>
